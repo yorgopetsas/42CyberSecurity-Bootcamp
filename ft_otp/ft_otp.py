@@ -1,8 +1,43 @@
 import argparse
 import os
+import hmac
+import time
+import hashlib
+import struct
 from cryptography.fernet import Fernet
 
-# def yz_encript_file(file):
+def yz_encript_file(filez):
+	key = Fernet.generate_key()
+
+	with open('.key', 'wb') as filekey:
+	    filekey.write(key)
+	with open('.key', 'rb') as filekey:
+	    key = filekey.read()
+	fernet = Fernet(key)
+	with open(filez, 'rb') as file:
+	    original = file.read()
+	encrypted = fernet.encrypt(original)
+	with open(filez, 'wb') as encrypted_file:
+	    encrypted_file.write(encrypted)
+
+
+def yz_code_gen():
+	with open('.key', 'rb') as filekey:
+		key = filekey.read()
+
+	fernet = Fernet(key)
+
+	eta_time = int(time.time() // 30)
+	eta_time_b = struct.pack(">Q", eta_time)
+
+	hash_b = hmac.digest(key, eta_time_b, hashlib.sha1)
+
+	offset = hash_b[19] & 15
+
+	code = struct.unpack('>I',  hash_b[offset:offset + 4])[0]
+	code = (code & 0x7FFFFFFF) % 1000000
+
+	return "{:06d}".format(code)
 
 
 def yz_file_checker():
@@ -22,8 +57,6 @@ def yz_file_checker():
 		check_file = os.path.exists(file)
 		if not check_file:
 			return(0)
-		# cifrar fichero
-		# yz_encript_file(file)
 		return(file)
 
 
@@ -35,6 +68,7 @@ def yz_key_reg(key):
 	file_to_write = open(file, 'w')
 	file_to_write.write(key)
 	file_to_write.close()
+	yz_encript_file(file)
 
 
 # Check if provided key is hexidecimal
@@ -59,33 +93,14 @@ if __name__ == "__main__":
 	global key
 
 	args = cli_scan()
-
 	if args.g and len(args.g) > 63:
 		key = args.g
-		
-		# yz_to_hex(key)
-
 		if yz_chk_hex(key) != 0:
 			yz_key_reg(key)
-		
-		# print(key)
 
 	gen = args.k
 	if gen:
-		print(gen)
+		#ft_otp -k ft_otp.key
+		print(yz_code_gen())
 
-
-# Convert str to hexdecimal. Not Working
-# def yz_to_hex(key):
-# 	key_int = int(key)
-# 	key_hex = hex(key_int)
-# 	print(key_hex)
-
-# if not re.match(r'^[0-9a-fA-F]{64,}$', clave):
-#     print("La clave no es hexadecimal o tiene menos de 64 caracteres.")
-# Expresión regular:
-# ^           : límite inicial de la acotación de la cadena.
-# [0-9a-fA-F] : cualquier caracter hexadecimal (números, o letras desde 'a' hasta 'f' o desde 'A' hasta 'F').
-# {64,}       : cuantificador que indica longitud de 64 hasta ilimitados caracteres.
-# $           : límite final de la acotación de la cadena.
 	
