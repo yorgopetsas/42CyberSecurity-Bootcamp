@@ -29,8 +29,9 @@ def get_img_lst(url):
     # return(urls)
 
 def image_list(path, url):
-  check_path(path)
+#   check_path(path)
   images = get_img_lst(url)
+  print(images)
   for i, image in enumerate(images):
     images_url = images[i]['src']
     # Remove parameters after filename
