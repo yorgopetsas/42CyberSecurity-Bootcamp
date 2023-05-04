@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 import argparse
 import requests
 import os
-
+from os.path import exists
 
 urls_to_visit = []
 urls_to_visit_l = []
@@ -67,7 +67,7 @@ def dwn_img_local(img_found, location, path):
             try: 
                 os.popen(f'cp {final_path} {dst}')
                 imgs_downloaded.append(final_path)
-                print(f"Image downloaded: {image_name}")
+                print(f"Local Image downloaded: {image_name}")
             except:
                 print('error')
 
@@ -135,10 +135,10 @@ def image_list_local(path, s):
 def get_url_local(location):
     pathz = "data"
     file_name, file_extension = os.path.splitext(location)
-    if file_extension != '.html':
-        print('Wrong file format. The program only accepts .html files.')
-        exit()
-    elif file_extension == '.html':
+    # if file_extension != '.html':
+    #     print('Wrong file format. The program only accepts .html files.')
+    #     exit()
+    if file_extension == '.html':
         HTMLFile = open(location, "r")
         index = HTMLFile.read()
         s = bs(index, "html.parser")
@@ -162,6 +162,7 @@ def get_url_lst_local(location):
 # Strip URL
 def strip_url(url):
     striped_url = ''
+    # print(f"\n CU {url}\n")
     if url.startswith("http://www."):
         url_prefix = "http://www."
         striped_url = url[11:]
@@ -174,29 +175,36 @@ def strip_url(url):
     elif url.startswith("http://"):
         url_prefix = "http://"
         striped_url = url[7:]
-    else:
-        local = True
-        get_url_local(url)
-        dwn_img_local(img_found, url, path)
-        get_url_lst_local(url)
-        l = level
-        if recur == True and l > 1:
-            while l > 1:
-                for v in range(len(urls_to_visit)):
-                    # print(v)
-                    get_url_local(urls_to_visit[v])
-                    dwn_img_local(img_found, url, path)
-                    get_url_lst_local(urls_to_visit[v])
-                    l -= 1
-        ## Final Results
+    elif url == '':
         print()
-        print("\n-- Images Downlaoded:")
-        for img in imgs_downloaded:
-            print(img)
-        print("\n-- Pending to vist next depth:")
-        for u in urls_to_visit:
-            print(u)
-        exit()            
+    else:
+        # print('\n\n NEEWWW')
+        file_exists = exists(url)
+        # print(file_exists)
+        # print('\n\n NNNNEEEWWWW')
+        if file_exists == True:
+            local = True
+            get_url_local(url)
+            dwn_img_local(img_found, url, path)
+            get_url_lst_local(url)
+            l = level
+            if recur == True and l > 1:
+                while l > 1:
+                    for v in range(len(urls_to_visit)):
+                        # print(v)
+                        get_url_local(urls_to_visit[v])
+                        dwn_img_local(img_found, url, path)
+                        get_url_lst_local(urls_to_visit[v])
+                        l -= 1
+            ## Final Results
+            print()
+            print("\n-- Images Downlaoded:")
+            for img in imgs_downloaded:
+                print(img)
+            print("\n-- Pending to vist next depth:")
+            for u in urls_to_visit:
+                print(u)
+            exit()            
 
     return (striped_url)
 
