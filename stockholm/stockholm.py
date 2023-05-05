@@ -79,15 +79,11 @@ def yz_handle_args(args):
 	if args.v or args.version:
 		print("The Version of the program is: 1.0b")
 		exit()
-	if args.r:
+	if args.r or args.reverse:
 		print(f"R is: {args.r}")
 		yz_cure_target()
-	if args.reverse:
-		print(f"Reverse is: {args.reverse}")
-	if args.silent:
+	if args.s or args.silent:
 		print(f'Silent is: {args.silent}')
-	if args.s:
-		print(f'S is: {args.s}')
 
 
 # Parse CLI arguments
@@ -97,11 +93,11 @@ def cli_scan():
 	# The program will have the option "–help" or "-h" to display help. To do this we have to overwrite the build-in
 	scan.add_argument('-h', action='store_true')
 	scan.add_argument('-help', action='store_true')
-    
+
     # The program will have the option "–version" or "-v" to show the version of the program.
 	scan.add_argument("-v", help="", type=bool, nargs='?', const=True)
 	scan.add_argument("-version", help="", type=bool, nargs='?', const=True)
-	
+
 	# # The program will have the option "–reverse" or "-r" followed by the key entered as
 	# # an argument to reverse the infection.    
 	scan.add_argument("-r", help="", type=bool, nargs='?', const=True)
